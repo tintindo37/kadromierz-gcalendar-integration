@@ -1,0 +1,8 @@
+discord.py
+pdfplumber 
+google-auth-oauthlib 
+google-api-python-client
+aiohttp
+sqlalchemy
+pymysql
+python-json-logger

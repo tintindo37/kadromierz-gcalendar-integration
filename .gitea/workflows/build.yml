@@ -1,0 +1,46 @@
+name:  Build and Publish image to Gitea Container Registry
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.gitea/version/version.txt'
+      - '.gitea/workflows/build.yml'
+jobs:
+  backend-val-docker:
+    runs-on: cl5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: https://github.com/docker/login-action@v3
+        with:
+          registry: ${{ vars.DOCKER_GITEA_REGISTRY }}
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.TOKEN_GITEA_CONTAINER }}
+      
+      - name: Set up QEMU
+        uses: https://github.com/docker/setup-qemu-action@v3
+      
+      - name: Set up Docker Buildx
+        uses: https://github.com/docker/setup-buildx-action@v3
+      
+      - name: Read version
+        id: prep
+        run: |
+          VERSION=$(cat .gitea/version/version.txt)
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+      
+      - name: Build and push
+        uses: https://github.com/docker/build-push-action@v6
+        with:
+          platforms: linux/amd64, linux/arm64
+          context: ./
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ${{ vars.DOCKER_GITEA_REGISTRY }}/${{ secrets.DOCKER_HUB_USERNAME }}/grafikbot:${{ steps.prep.outputs.VERSION }}
+            ${{ vars.DOCKER_GITEA_REGISTRY }}/${{ secrets.DOCKER_HUB_USERNAME }}/grafikbot:latest
