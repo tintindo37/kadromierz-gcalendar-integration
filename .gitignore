@@ -1,3 +1,6 @@
-desktop-app/.env
-desktop-app/credentials.json
-desktop-app/token.json
+cli-app/.env
+cli-app/credentials.json
+cli-app/token.json
+discord-app/credentials.json
+discord-app/*.db
+discord-app/tokens.db

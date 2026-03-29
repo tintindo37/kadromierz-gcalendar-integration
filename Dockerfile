@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-COPY dc-app/ /app
+COPY discord-app/ /app
 WORKDIR /app
 
 # PYTHON dependencies
