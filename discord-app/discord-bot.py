@@ -13,12 +13,14 @@ from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 import logging
 from pythonjsonlogger import jsonlogger
+
+# SQLAlchemy
 from sqlalchemy import (
     create_engine, MetaData, Table, Column,
     String, Integer, Text, DateTime,
     insert, select, update, delete
 )
-from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.dialects.postgresql import insert as pg_insert  # used only when needed
 from sqlalchemy.engine import Engine
 
 # ─────────────────────────────────────────
@@ -55,9 +57,16 @@ logger.info("Structured JSON logging initialized")
 # ─────────────────────────────────────────
 
 CREDENTIALS_PATH = 'credentials.json'
-SCOPES = ['https://www.googleapis.com/auth/calendar']
+SCOPES = [
+    'https://www.googleapis.com/auth/calendar',
+    'https://www.googleapis.com/auth/calendar.events',
+]
+
+# Google sometimes returns scopes in a different order or with additions.
+# This tells oauthlib to accept the token instead of raising on scope changes.
+os.environ.setdefault("OAUTHLIB_RELAX_TOKEN_SCOPE", "1")
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "")
-PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "www.example.com")
+PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "https://grafik.tintindo.xyz")
 CALLBACK_PATH = "/oauth/callback"
 CALLBACK_URL = PUBLIC_BASE_URL + CALLBACK_PATH
 OAUTH_PORT = int(os.getenv("OAUTH_PORT", "8080"))
@@ -75,20 +84,12 @@ tree = bot.tree
 #  DATABASE
 # ─────────────────────────────────────────
 
-engine_args = {
-    "future": True
-}
-
-# Add MySQL-specific connection arguments
-if DATABASE_URL.startswith("mysql"):
-    engine_args.update({
-        "pool_pre_ping": True,
-        "pool_recycle": 1800,
-        "pool_size": 10,  
-})
-
-
-engine = create_engine(DATABASE_URL, **engine_args)
+engine = create_engine(
+    DATABASE_URL,
+    future=True,
+    pool_pre_ping=True,
+    pool_recycle=1800,
+)
 
 metadata = MetaData()
 
