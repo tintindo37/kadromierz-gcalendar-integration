@@ -8,7 +8,7 @@ on:
       - '.gitea/version/version.txt'
       - '.gitea/workflows/build.yml'
 jobs:
-  backend-val-docker:
+  docker-build:
     runs-on: cl5
 
     steps:
